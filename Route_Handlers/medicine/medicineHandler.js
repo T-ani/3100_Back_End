@@ -114,11 +114,39 @@ router.get("/searchMedicineForSeller", async (req, res) => {
 	console.log("userEmail", userEmail);
 });
 
-router.get("/searchMedicineForUser", async (req, res) => {
+router.post("/searchMedicineForUser/", async (req, res) => {
 	console.log(req.body);
 
-	const userEmail = await verifyToken(req.headers["token"]);
-	console.log("userEmail", userEmail);
+	const { shopName } = req.body;
+
+	try {
+		const medicine = await MedicineSchema.find({
+			shopName: shopName,
+		});
+
+		const shop = await UserSignUp.findOne({
+			where: {
+				email: medicine.userEmail,
+			},
+		});
+
+		console.log(shop);
+
+		const data = {
+			medicine: medicine,
+			shop: shop,
+		};
+
+		res.status(200).json({
+			result: data,
+			message: "Success",
+		});
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({
+			error: "There was a server side error",
+		});
+	}
 });
 
 const verifyToken = async (token) => {
