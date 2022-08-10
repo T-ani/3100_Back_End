@@ -117,11 +117,11 @@ router.get("/searchMedicineForSeller", async (req, res) => {
 router.post("/searchMedicineForUser/", async (req, res) => {
 	console.log(req.body);
 
-	const { shopName } = req.body;
+	const { searchText } = req.body;
 
 	try {
 		const medicine = await MedicineSchema.find({
-			shopName: shopName,
+			medName: searchText,
 		});
 
 		const shop = await UserSignUp.findOne({
@@ -130,7 +130,7 @@ router.post("/searchMedicineForUser/", async (req, res) => {
 			},
 		});
 
-		console.log(shop);
+		console.log(medicine);
 
 		const data = {
 			medicine: medicine,
