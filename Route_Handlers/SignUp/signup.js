@@ -15,7 +15,7 @@ const {
 } = require("../../Validation/validation");
 
 //Post An Item
-router.post("/register", async (req, res) => {
+router.post("/signup", async (req, res) => {
 	console.log(req.body);
 	const { error } = registerValidation(req.body);
 	if (error) return res.status(400).send(error.details[0].message);
@@ -65,12 +65,12 @@ router.post("/login", async (req, res) => {
 	const { error } = loginValidation(req.body); //Middle-ware
 	if (error) return res.status(400).send(error.details[0].message);
 
-	UserSignUp.find({ email: req.body.email })
+	UserSignUp.find({ email: req.body.email, phoneNumber: req.body.phoneNumber })
 		.exec()
 		.then((user) => {
 			if (user.length < 1) {
 				return res.status(401).json({
-					msg: "user not exist",
+					msg: "Email or Phone Number is incorrect",
 				});
 			}
 			bcrypt.compare(
@@ -79,7 +79,7 @@ router.post("/login", async (req, res) => {
 				(err, result) => {
 					if (!result) {
 						return res.status(401).json({
-							msg: "password matching failed",
+							msg: "Wrong Password!",
 						});
 					}
 					if (result) {
@@ -94,6 +94,7 @@ router.post("/login", async (req, res) => {
 							userName: user[0].userName,
 							email: user[0].email,
 							phoneNumber: user[0].phoneNumber,
+							location: user[0].location,
 							token: token,
 						});
 					}

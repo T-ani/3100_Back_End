@@ -19,7 +19,7 @@ mongoose
 
 //application routes
 
-app.use("/signUp", signUpHandler);
+app.use("/auth", signUpHandler);
 app.use("/medicine", medHandler);
 // app.use("/user", userHandler);
 
