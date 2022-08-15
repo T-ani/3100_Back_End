@@ -8,7 +8,6 @@ const MedicineModel = new mongoose.model("MedicineModel", medicineSchema);
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
-const Joi = require("joi");
 const {
 	registerValidation,
 	loginValidation,

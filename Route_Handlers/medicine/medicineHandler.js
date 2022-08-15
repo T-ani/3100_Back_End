@@ -6,7 +6,6 @@ const medicineSchema = require("../../Schemas/medicineSchema");
 const UserModel = new mongoose.model("UserModel", signUpSchema);
 const MedicineModel = new mongoose.model("MedicineModel", medicineSchema);
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
 const multer = require("multer");
 var fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
@@ -33,38 +32,37 @@ router.post(
 		},
 	]),
 	async (req, res) => {
-		console.log(req.body);
-
-		const image = req.files.image[0];
-
-		const userEmail = await verifyToken(req.headers["token"]);
-		console.log("userEmail", userEmail);
-
-		const rootDir = "public/";
-		const medDir = "medicine";
-		const dir = rootDir + medDir;
-		if (!fs.existsSync(dir)) {
-			fs.mkdirSync(roodirtDir, { recursive: true });
-		}
-		fs.rename(image.path, dir + "/" + image.filename, function (err) {
-			if (err) throw err;
-		});
-
-		const shop = await UserModel.findOne({
-			where: {
-				email: userEmail,
-			},
-		});
-
-		const medicine = new MedicineModel({
-			medName: req.body.medName,
-			company: req.body.company,
-			specification: req.body.specification,
-			price: req.body.price,
-			image: medDir + "/" + image.filename,
-			shop: shop,
-		});
+		const token = req.headers["token"];
+		console.log("token", req.headers["token"]);
 		try {
+			console.log(req.body);
+
+			const image = req.files.image[0];
+
+			const userEmail = await verifyToken(req.headers["token"]);
+
+			const rootDir = "public/";
+			const medDir = "medicine";
+			const dir = rootDir + medDir;
+			if (!fs.existsSync(dir)) {
+				fs.mkdirSync(roodirtDir, { recursive: true });
+			}
+			fs.rename(image.path, dir + "/" + image.filename, function (err) {
+				if (err) throw err;
+			});
+
+			const shop = await UserModel.findOne({
+				email: userEmail,
+			});
+
+			const medicine = new MedicineModel({
+				medName: req.body.medName,
+				company: req.body.company,
+				specification: req.body.specification,
+				price: req.body.price,
+				image: medDir + "/" + image.filename,
+				shop: shop,
+			});
 			const data = await medicine.save();
 
 			res.status(200).json({
@@ -87,12 +85,12 @@ router.get("/getMedicineByShop", async (req, res) => {
 
 	try {
 		const userEmail = await verifyToken(req.headers["token"]);
-		console.log("userEmail", userEmail);
+		// console.log("userEmail", userEmail);
 
 		const medicine = await MedicineModel.find({
 			"shop.email": userEmail,
 		});
-		console.log(medicine);
+		// console.log(medicine);
 
 		const data = {
 			medicine: medicine,
@@ -163,7 +161,7 @@ const verifyToken = async (token) => {
 			if (user === null) {
 				return null;
 			}
-			console.log(user);
+			console.log(user.email);
 			return user.email;
 		} else {
 			// Access Denied
