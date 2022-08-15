@@ -1,8 +1,10 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const signUpHandler = require("./Route_Handlers/SignUp/signup");
+
+const authHandler = require("./Route_Handlers/auth/authHandler");
 const medHandler = require("./Route_Handlers/medicine/medicineHandler");
+
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -19,9 +21,8 @@ mongoose
 
 //application routes
 
-app.use("/auth", signUpHandler);
+app.use("/auth", authHandler);
 app.use("/medicine", medHandler);
-// app.use("/user", userHandler);
 
 //error handeling Middleware
 const errorHandler = (err, req, res, next) => {

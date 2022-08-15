@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
-const signUpSchema = require("../../Schemas/signUpSchema");
+const signUpSchema = require("../../Schemas/userSchema");
 const medicineSchema = require("../../Schemas/medicineSchema");
-const UserSignUp = new mongoose.model("UserSignup", signUpSchema);
-const MedicineSchema = new mongoose.model("MedicineSchema", medicineSchema);
+const UserModel = new mongoose.model("UserModel", signUpSchema);
+const MedicineModel = new mongoose.model("MedicineModel", medicineSchema);
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const multer = require("multer");
@@ -50,13 +50,19 @@ router.post(
 			if (err) throw err;
 		});
 
-		const medicine = new MedicineSchema({
+		const shop = await UserModel.findOne({
+			where: {
+				email: userEmail,
+			},
+		});
+
+		const medicine = new MedicineModel({
 			medName: req.body.medName,
 			company: req.body.company,
 			specification: req.body.specification,
 			price: req.body.price,
 			image: medDir + "/" + image.filename,
-			userEmail: userEmail,
+			shop: shop,
 		});
 		try {
 			const data = await medicine.save();
@@ -77,22 +83,19 @@ router.post(
 router.put("/updateMedicine", async (req, res) => {});
 
 router.get("/getMedicineByShop", async (req, res) => {
-	console.log(req.body);
-
-	const userEmail = await verifyToken(req.headers["token"]);
-	console.log("userEmail", userEmail);
-
-	const medicine = await MedicineSchema.find({
-		userEmail: userEmail,
-	});
-	const shop = await UserSignUp.findOne({
-		email: userEmail,
-	});
+	console.log("token", req.headers["token"]);
 
 	try {
+		const userEmail = await verifyToken(req.headers["token"]);
+		console.log("userEmail", userEmail);
+
+		const medicine = await MedicineModel.find({
+			"shop.email": userEmail,
+		});
+		console.log(medicine);
+
 		const data = {
 			medicine: medicine,
-			shop: shop,
 		};
 
 		res.status(200).json({
@@ -120,11 +123,11 @@ router.post("/searchMedicineForUser/", async (req, res) => {
 	const { searchText } = req.body;
 
 	try {
-		const medicine = await MedicineSchema.find({
+		const medicine = await MedicineModel.find({
 			medName: searchText,
 		});
 
-		const shop = await UserSignUp.findOne({
+		const shop = await UserModel.findOne({
 			where: {
 				email: medicine.userEmail,
 			},
@@ -150,19 +153,17 @@ router.post("/searchMedicineForUser/", async (req, res) => {
 });
 
 const verifyToken = async (token) => {
-	console.log("token", token);
-
 	try {
 		const verified = await jwt.verify(token, "this is dummy text");
+		console.log("verified", verified.email);
 		if (verified) {
-			const user = await UserSignUp.findOne({
-				where: {
-					email: verified.email,
-				},
+			const user = await UserModel.findOne({
+				email: verified.email,
 			});
 			if (user === null) {
 				return null;
 			}
+			console.log(user);
 			return user.email;
 		} else {
 			// Access Denied

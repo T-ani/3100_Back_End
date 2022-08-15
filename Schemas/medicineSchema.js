@@ -21,9 +21,23 @@ const medicineSchema = mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	userEmail: {
-		type: String,
-		required: true,
+	shop: {
+		userName: {
+			type: String,
+			required: true,
+		},
+		email: {
+			type: String,
+			required: true,
+		},
+		phoneNumber: {
+			type: String,
+			required: true,
+		},
+		location: {
+			type: String,
+			required: true,
+		},
 	},
 });
 
