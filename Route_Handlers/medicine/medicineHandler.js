@@ -126,9 +126,9 @@ router.post("/searchMedicineForUser/", async (req, res) => {
 		});
 
 		const shop = await UserModel.findOne({
-			where: {
+			
 				email: medicine.userEmail,
-			},
+		
 		});
 
 		console.log(medicine);
